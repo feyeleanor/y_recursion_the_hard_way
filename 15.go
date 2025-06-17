@@ -9,16 +9,23 @@ type Integer interface {
 }
 
 func main() {
-	if x, _ := strconv.Atoi(os.Args[1]); x < 0 {
-		fmt.Printf("no factorial defined for %v\n", x)
-	} else {
-		fmt.Printf("%v!: %v\n", x, Factorial(x))
-	}
+	defer func() {
+		if x := recover(); x != nil {
+			fmt.Printf("no factorial defined for %v\n", x)
+		}
+	}()
+	x, _ := strconv.Atoi(os.Args[1])
+	fmt.Printf("%v!: %v\n", x, Factorial(x))
 }
 
 func Factorial[T Integer](n T) T {
-	if n == 0 {
+	// for a 64-bit integer only correct when n < 21
+	switch {
+	case n < 0:
+		panic(n)
+	case n == 0:
 		return 1
+	default:
+		return n * Factorial(n - 1)
 	}
-	return n * Factorial(n - 1)
 }
